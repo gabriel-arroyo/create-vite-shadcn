@@ -101,6 +101,44 @@ const tsConfigNodeJson = `{
 }
 `;
 
+const gitignore = `# Node.js
+node_modules/
+
+# Output
+build/
+dist/
+out/
+
+# IDE
+.vscode/
+.idea/
+
+# Dependency directories
+typings/
+
+# Compiled TypeScript
+*.js
+*.js.map
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Tailwind CSS
+tailwind.config.js
+postcss.config.js
+
+# Shadow DOM (if using a specific library)
+shadow-clones/
+
+# Editor files
+*.swp
+*.swo
+*.swn
+*.swo
+*.swn
+*.swp
+`
+
 const sleep = (ms = 2000) => new Promise(r => setTimeout(r, ms));
 
 function print_stdout(stdout) {
@@ -234,8 +272,27 @@ async function installTailwind() {
   createFile(`./${appName}/src/App.${useTypescript ? 'tsx' : 'jsx'}`, appTsx);
   createFile(`./${appName}/tsconfig.json`, tsConfigJson);
   createFile(`./${appName}/tsconfig.node.json`, tsConfigNodeJson);
+  createFile(`./${appName}/.gitignore`, gitignore);
 
   rimraf.sync(`./${appName}/src/App.css`);
+}
+
+async function initializeRepo(){
+  await execute(
+    'git init',
+    'Initializing Git Repo',
+    appName
+  );
+  await execute(
+    'git add .',
+    'Stagging',
+    appName
+  );
+  await execute(
+    'git commit -m "First commit"',
+    'Initializing Git Repo',
+    appName
+  );
 }
 
 function done() {
