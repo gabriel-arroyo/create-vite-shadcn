@@ -315,6 +315,7 @@ await askTypescript();
 await createVite();
 await npmInstall();
 await installTailwind();
+await initializeRepo();
 done()
 
 console.log(`
