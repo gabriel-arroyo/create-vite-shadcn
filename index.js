@@ -12,9 +12,9 @@ import { rimraf } from 'rimraf';
 import fs from 'fs/promises';
 
 
-let appName;
-let useTypescript;
-let onCancel;
+let appName = 'MyApp';
+let useTypescript = false;
+let onCancel = true;
 
 const tailwindConfigJs = `/** @type {import('tailwindcss').Config} */
 export default {
@@ -26,13 +26,9 @@ export default {
     extend: {},
   },
   plugins: [],
-}`;
-
-const appTsx = `import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-
-export default function App() {
+}
+`;
+const appTsx = `export default function App() {
   return (
     <>
       <div className="bg-gray-200 p-8">
@@ -61,12 +57,54 @@ export default function App() {
     </div>
     </>
   )
-}`
+}
+`;
+const tsConfigJson = `{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "node",
+    "forceConsistentCasingInFileNames": true,
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
+`;
+const tsConfigNodeJson = `{
+  "compilerOptions": {
+    "composite": true,
+    "skipLibCheck": true,
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "rootDir": "./"
+  },
+  "include": ["vite.config.ts"]
+}
+`;
 
 const sleep = (ms = 2000) => new Promise(r => setTimeout(r, ms));
 
 function print_stdout(stdout) {
-  for (let line of stdout.split('\n')) {
+  for (const line of stdout.split('\n')) {
     console.log(`${line}`);
   }
 }
@@ -85,7 +123,7 @@ async function sh(cmd, dir) {
 
 async function execute(cmd, msg, dir="."){
   const spinner = createSpinner(msg).start();
-  let { stdout } = await sh(cmd, dir)
+  const { stdout } = await sh(cmd, dir)
   print_stdout(stdout)
   spinner.success()
 }
@@ -135,12 +173,11 @@ async function askName() {
     type: 'input',
     message: 'Project name:',
     default() {
-      return 'App'
+      return 'MyApp'
     },
   });
 
   appName = answers.app_name;
-  
   await detectExistence();
 }
 
@@ -194,7 +231,11 @@ async function installTailwind() {
 @tailwind components;
 @tailwind utilities;
   `);
-  createFile(`./${appName}/src/App.tsx`, appTsx);
+  createFile(`./${appName}/src/App.${useTypescript ? 'tsx' : 'jsx'}`, appTsx);
+  createFile(`./${appName}/tsconfig.json`, tsConfigJson);
+  createFile(`./${appName}/tsconfig.node.json`, tsConfigNodeJson);
+
+  rimraf.sync(`./${appName}/src/App.css`);
 }
 
 function done() {

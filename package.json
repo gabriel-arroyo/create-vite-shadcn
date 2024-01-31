@@ -1,6 +1,6 @@
 {
-  "name": "create-dtna-fe",
-  "version": "1.0.0",
+  "name": "create-vite-shadcn",
+  "version": "1.0.3",
   "description": "",
   "main": "index.js",
   "type": "module",
